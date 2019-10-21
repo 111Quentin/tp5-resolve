@@ -427,6 +427,7 @@ class RuleGroup extends Rule
      */
     public function addRule($rule, $route, $method = '*', $option = [], $pattern = [])
     {
+        
         // 读取路由标识
         if (is_array($rule)) {
             $name = $rule[0];

@@ -465,6 +465,8 @@ class Route
     public function setName($name)
     {
         $this->app['rule_name']->import($name);
+
+        // var_dump($this);
         return $this;
     }
 

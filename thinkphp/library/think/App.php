@@ -401,7 +401,6 @@ class App extends Container
             $this->hook->listen('app_dispatch');
 
             $dispatch = $this->dispatch;
-          
 
             if (empty($dispatch)) {
                 // 路由检测
@@ -604,7 +603,7 @@ class App extends Container
 
         // 获取应用调度信息
         $path = $this->request->path();
-
+        
         // 是否强制路由模式
         $must = !is_null($this->routeMust) ? $this->routeMust : $this->route->config('url_route_must');
 

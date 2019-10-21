@@ -90,8 +90,7 @@ abstract class Dispatch
                 'var'    => $this->rule->getVars(),
             ]);
 
-            // echo "<pre>"; 
-            // var_dump($this->request);
+          
             $this->doRouteAfter();
         }
 

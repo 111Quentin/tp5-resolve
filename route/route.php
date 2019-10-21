@@ -9,14 +9,30 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-Route::get('think', function () {
-    return 'hello,Quetin!';
-});
 
-Route::get('hello/:name', 'index/hello');
+// 定义资源路由
+// Route::resource('blog.comment','index/comment');
 
-Route::rule('say/:name$','index/hello');
+Route::resource('res','index/res');
+
+
+// Route::get('think', function () {
+//     return 'hello,Quetin!';
+// });
+
+// Route::get('hello/:name', 'index/hello');
+
+// Route::rule('say/:name$','index/hello');
+
 
 return [
-
+    '__rest__' => [
+        'res' => 'index/res'
+    ],
+    'hello/:name' => 'index/hello',
+    'test/:na' => [
+        'index/test',
+        ['ext' => 'html'],
+        ['na' => '\d+']
+    ],
 ];
