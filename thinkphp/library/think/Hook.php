@@ -87,6 +87,8 @@ class Hook
         if (is_array($behavior) && !is_callable($behavior)) {
             if (!array_key_exists('_overlay', $behavior)) {
                 $this->tags[$tag] = array_merge($this->tags[$tag], $behavior);
+                // echo "<pre>";
+                // print_r($this->tags);
             } else {
                 unset($behavior['_overlay']);
                 $this->tags[$tag] = $behavior;
@@ -145,6 +147,8 @@ class Hook
         $results = [];
         $tags    = $this->get($tag);
 
+        
+
         foreach ($tags as $key => $name) {
             $results[$key] = $this->execTag($name, $tag, $params);
 
@@ -152,7 +156,6 @@ class Hook
                 break;
             }
         }
-
         return $once ? end($results) : $results;
     }
 

@@ -178,6 +178,10 @@ class App extends Container
 
         static::setInstance($this);
 
+        // var_dump(static::setInstance($this));
+
+
+
         $this->instance('app', $this);
 
         // 加载环境变量配置文件
@@ -200,7 +204,9 @@ class App extends Container
             'runtime_path' => $this->runtimePath,
             'extend_path'  => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
             'vendor_path'  => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
-        ]);
+            
+            'test_path'    => array($this->thinkPath,$this->rootPath),
+            ]);
 
         $this->namespace = $this->env->get('app_namespace', $this->namespace);
         $this->env->set('app_namespace', $this->namespace);
@@ -275,6 +281,9 @@ class App extends Container
 
         // var_dump($module);
         $path   = $this->appPath . $module;
+        // var_dump($path);
+
+
 
         // 加载初始化文件
         if (is_file($path . 'init.php')) {
@@ -285,22 +294,62 @@ class App extends Container
             // 加载行为扩展文件
             if (is_file($path . 'tags.php')) {
                 $tags = include $path . 'tags.php';
+
+                // var_dump($tags);
                 if (is_array($tags)) {
                     $this->hook->import($tags);
+                    
+                    // 打印出来
+                    // Array
+                    //     (
+                    //         [app_init] => Array
+                    //             (
+                    //             )
+
+                    //         [app_begin] => Array
+                    //             (
+                    //             )
+
+                    //         [module_init] => Array
+                    //             (
+                    //             )
+
+                    //         [action_begin] => Array
+                    //             (
+                    //             )
+
+                    //         [view_filter] => Array
+                    //             (
+                    //             )
+
+                    //         [log_write] => Array
+                    //             (
+                    //             )
+
+                    //         [app_end] => Array
+                    //             (
+                    //             )
+
+                    //     )
                 }
             }
+
 
             // 加载公共文件
             if (is_file($path . 'common.php')) {
                 include_once $path . 'common.php';
             }
 
+
+            // 第一次还没进行路由检测时，加载系统助手函数
             if ('' == $module) {
                 // 加载系统助手函数
                 include $this->thinkPath . 'helper.php';
             }
 
-            // 加载中间件
+
+           
+            // 加载中间件(默认application 或者application/index文件夹没有这个脚本文件)
             if (is_file($path . 'middleware.php')) {
                 $middleware = include $path . 'middleware.php';
                 if (is_array($middleware)) {
@@ -308,25 +357,33 @@ class App extends Container
                 }
             }
 
-            // 注册服务的容器对象实例
+            // 注册服务的容器对象实例 （我增加了sa类）
             if (is_file($path . 'provider.php')) {
                 $provider = include $path . 'provider.php';
+                // var_dump($provider);
                 if (is_array($provider)) {
+                    // 将provider定义的类绑定到Containber容器类的$bind 属性
                     $this->bindTo($provider);
                 }
             }
 
+            
             // 自动读取配置文件
             if (is_dir($path . 'config')) {
                 $dir = $path . 'config' . DIRECTORY_SEPARATOR;
             } elseif (is_dir($this->configPath . $module)) {
                 $dir = $this->configPath . $module;
+                //  var_dump($dir);
             }
 
+            // 遍历config文件夹的所有文件
             $files = isset($dir) ? scandir($dir) : [];
 
+            // var_dump($files);
             foreach ($files as $file) {
+                // pathinfo 函数返回文件路径信息
                 if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
+                    // 如果是php文件
                     $this->config->load($dir . $file, pathinfo($file, PATHINFO_FILENAME));
                 }
             }
@@ -340,16 +397,21 @@ class App extends Container
         }
     }
 
+    // 例如$module = index
     protected function containerConfigUpdate($module)
     {
         $config = $this->config->get();
+        // var_dump($config);
 
         // 注册异常处理类
         if ($config['app']['exception_handle']) {
             Error::setExceptionHandler($config['app']['exception_handle']);
         }
 
+        // 使用Db类
         Db::init($config['database']);
+
+        
         $this->middleware->setConfig($config['middleware']);
         $this->route->setConfig($config['app']);
         $this->request->init($config['app']);
@@ -402,15 +464,17 @@ class App extends Container
 
             $dispatch = $this->dispatch;
 
+           
             if (empty($dispatch)) {
                 // 路由检测
-                $dispatch = $this->routeCheck()->init();
+                $dispatch = $this->routeCheck()->init();  // 再次调用了App.php类的init方法
             }
 
+           
             // 记录当前调度信息
             $this->request->dispatch($dispatch);
 
-            // 记录路由和请求信息
+            // 记录路由和请求信息~
             if ($this->appDebug) {
                 $this->log('[ ROUTE ] ' . var_export($this->request->routeInfo(), true));
                 $this->log('[ HEADER ] ' . var_export($this->request->header(), true));
@@ -421,12 +485,14 @@ class App extends Container
             $this->hook->listen('app_begin');
 
             // 请求缓存检查
-            $this->checkRequestCache(
+                $this->checkRequestCache(
                 $this->config('request_cache'),
                 $this->config('request_cache_expire'),
                 $this->config('request_cache_except')
             );
 
+          
+            
             $data = null;
         } catch (HttpResponseException $exception) {
             $dispatch = null;
@@ -856,6 +922,8 @@ class App extends Container
     public function setModulePath($path)
     {
         $this->modulePath = $path;
+
+        // var_dump($this->env);   //$this->env (think\Env.php)
         $this->env->set('module_path', $path);
     }
 

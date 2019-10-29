@@ -90,8 +90,9 @@ class Db
      */
     public static function init($config = [])
     {
+        // 将传入的config数组存入给 $config属性数组
         self::$config = $config;
-
+        
         if (empty($config['query'])) {
             self::$config['query'] = '\\think\\db\\Query';
         }

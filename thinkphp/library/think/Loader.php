@@ -82,7 +82,6 @@ class Loader
        
         self::$composerPath = $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
 
-        
         // Composer自动加载支持
         if (is_dir(self::$composerPath)) {
             if (is_file(self::$composerPath . 'autoload_static.php')) {

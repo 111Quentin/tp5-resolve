@@ -95,9 +95,12 @@ class Env
         if (is_array($env)) {
             $env = array_change_key_case($env, CASE_UPPER);
 
+        //    var_dump($env);
             foreach ($env as $key => $val) {
                 if (is_array($val)) {
                     foreach ($val as $k => $v) {
+                        // $text = $key . '_' . strtoupper($k);
+                        // var_dump($text,$v);
                         $this->data[$key . '_' . strtoupper($k)] = $v;
                     }
                 } else {
@@ -106,7 +109,7 @@ class Env
             }
         } else {
             $name = strtoupper(str_replace('.', '_', $env));
-
+            // var_dump($name); 
             $this->data[$name] = $value;
         }
     }

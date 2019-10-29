@@ -158,7 +158,7 @@ class Config implements \ArrayAccess
             $yaconfName = $this->getYaconfName($name);
 
             if (Yaconf::has($yaconfName)) {
-                return Yaconf::get($yaconfName);
+                return Yaconf::get($yaconfName);    
             }
         }
 
@@ -231,9 +231,11 @@ class Config implements \ArrayAccess
 
         // 无参数时获取所有
         if (empty($name)) {
+            // var_dump($this->config);
             return $this->config;
         }
 
+        // echo 123;
         if ('.' == substr($name, -1)) {
             return $this->pull(substr($name, 0, -1));
         }

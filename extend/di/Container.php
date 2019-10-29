@@ -86,7 +86,7 @@ class Container{
                 foreach ($params as $param) {
                     # code...
                     $class = $param->getClass();
-                    var_dump($class);
+                    // var_dump($class);
                     if(!$class){
                         // todo
                     }else{

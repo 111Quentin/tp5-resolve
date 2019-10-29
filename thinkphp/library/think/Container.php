@@ -60,7 +60,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     protected $instances = [];
 
     /**
-     * 容器绑定标识
+     * 容器绑定标识(把类绑定在容器里面)
      * @var array
      */
     protected $bind = [
@@ -101,10 +101,12 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      */
     public static function getInstance()
     {
+        // 如果当前容器中没有实例，就实例化一个(单例模式)
         if (is_null(static::$instance)) {
             static::$instance = new static;
         }
 
+        // var_dump(static::$instance);
         return static::$instance;
     }
 
@@ -129,6 +131,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      */
     public static function get($abstract, $vars = [], $newInstance = false)
     {
+        //static::getInstance() 类似self::getInstance() 返回单例对象
         return static::getInstance()->make($abstract, $vars, $newInstance);
     }
 
@@ -141,6 +144,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      */
     public static function set($abstract, $concrete = null)
     {
+        
         return static::getInstance()->bindTo($abstract, $concrete);
     }
 
@@ -172,11 +176,16 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * @param  mixed         $concrete    要绑定的类、闭包或者实例
      * @return $this
      */
+
+    //使用这个方法便可以将类合并进$bind 数组
     public function bindTo($abstract, $concrete = null)
     {
+        
         if (is_array($abstract)) {
+            
+            // 这句代码很常用
             $this->bind = array_merge($this->bind, $abstract);
-        } elseif ($concrete instanceof Closure) {
+        } elseif ($concrete instanceof Closure) {  //是否为闭包
             $this->bind[$abstract] = $concrete;
         } elseif (is_object($concrete)) {
             if (isset($this->bind[$abstract])) {
@@ -186,7 +195,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         } else {
             $this->bind[$abstract] = $concrete;
         }
-
+        // 打印Container类
+        // var_dump($this);
         return $this;
     }
 
@@ -206,9 +216,10 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
                 $abstract = $this->bind[$abstract];
             }
 
+            // 将实例存储到容器数组中
             $this->instances[$abstract] = $instance;
         }
-
+        // var_dump($this->instances);
         return $this;
     }
 
@@ -257,6 +268,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * @param  bool          $newInstance    是否每次创建新的实例
      * @return object
      */
+
+    // $this->env 创建类实例 
     public function make($abstract, $vars = [], $newInstance = false)
     {
         if (true === $vars) {
@@ -265,22 +278,30 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
             $vars        = [];
         }
 
+        // var_dump($this->name);
+    
+        // 判断name属性是否有类实例
         $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
 
         if (isset($this->instances[$abstract]) && !$newInstance) {
             return $this->instances[$abstract];
         }
 
+        // 判断绑定属性是否有当前参数
         if (isset($this->bind[$abstract])) {
             $concrete = $this->bind[$abstract];
-
+            // $concrete = 'think\App' 
+            
+            // 如果类是闭包
             if ($concrete instanceof Closure) {
-                $object = $this->invokeFunction($concrete, $vars);
+                $object = $this->invokeFunction($concrete, $vars);     
             } else {
                 $this->name[$abstract] = $concrete;
                 return $this->make($concrete, $vars, $newInstance);
             }
         } else {
+
+            // var_dump($vars);
             $object = $this->invokeClass($abstract, $vars);
         }
 
@@ -404,10 +425,10 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      */
     public function invoke($callable, $vars = [])
     {
+        // var_dump($cal    lable);
         if ($callable instanceof Closure) {
             return $this->invokeFunction($callable, $vars);
         }
-
         return $this->invokeMethod($callable, $vars);
     }
 
@@ -420,9 +441,11 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      */
     public function invokeClass($class, $vars = [])
     {
+
         try {
             $reflect = new ReflectionClass($class);
-
+            
+             // 传入的类是否有魔术方法  __make
             if ($reflect->hasMethod('__make')) {
                 $method = new ReflectionMethod($class, '__make');
 
@@ -506,11 +529,14 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         return $result;
     }
 
+
+    // 魔术方法
     public function __set($name, $value)
     {
         $this->bindTo($name, $value);
     }
 
+    // 比如$this->env
     public function __get($name)
     {
         return $this->make($name);
@@ -526,6 +552,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $this->delete($name);
     }
 
+    // 实现ArrayAcces类的方法
     public function offsetExists($key)
     {
         return $this->__isset($key);

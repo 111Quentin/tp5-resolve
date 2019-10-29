@@ -1,10 +1,11 @@
 <?php
 namespace app\index\controller;
 use think\facade\Config;
-use  ali\Send;
+use ali\Send;
 use Yaconf;
 use Single;
 use think\Container;
+use think\Db;
 
 class Index
 {
@@ -142,5 +143,15 @@ class Index
     public function abcd2(){
         // dump(abcd());
         dump(Container::get("sa")->abcd());
+    }
+
+    /**
+     * 测试Db
+     */
+    public function dbtest(){
+        $res = "";
+        $res = Db::query("select * from `sy_4399_user_0`");
+        dump(Db::getLastSql());
+        dump($res);
     }
 }
